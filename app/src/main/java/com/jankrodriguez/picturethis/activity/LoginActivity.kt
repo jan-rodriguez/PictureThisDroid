@@ -10,6 +10,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.jankrodriguez.picturethis.R
 import com.jankrodriguez.picturethis.model.CreateUserBody
+import com.jankrodriguez.picturethis.model.User
 import com.jankrodriguez.picturethis.service.PICTURE_THIS_SERVICE_INSTANCE
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -49,7 +50,7 @@ class LoginActivity : FragmentActivity() {
     }
 
     // [START onActivityResult]
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
@@ -100,8 +101,9 @@ class LoginActivity : FragmentActivity() {
                         google_id = googId))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnError {
+                    .onErrorReturn {
                         Log.d(TAG, it.message)
+                        return@onErrorReturn User("id", "name", "goog", 0)
                     }
                     .subscribe {
                         Log.d(TAG, it.toString())
