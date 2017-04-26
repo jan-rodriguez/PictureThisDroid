@@ -29,6 +29,7 @@ class LoginActivity : FragmentActivity() {
 		setContentView(R.layout.activity_login)
 
 		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+				.requestProfile()
 				.requestEmail()
 				.build()
 
@@ -100,17 +101,14 @@ class LoginActivity : FragmentActivity() {
 								google_id = googId))
 						.subscribeOn(Schedulers.io())
 						.observeOn(AndroidSchedulers.mainThread())
-						.onErrorReturn {
-							Log.d(TAG, it.message)
-							return@onErrorReturn User("id", "name", "goog", 0)
-						}
-						.subscribe {
-							Log.d(TAG, it.toString())
-						}
+						.subscribe(
+								{ Log.d(TAG, it.toString()) },
+								{ Log.e(TAG, it.message) })
 			}
 		} else {
 			// Signed out, show unauthenticated UI.
 //            updateUI(false)
+			Log.d(TAG, result.status.zzvv())
 		}
 	}
 	// [END handleSignInResult]

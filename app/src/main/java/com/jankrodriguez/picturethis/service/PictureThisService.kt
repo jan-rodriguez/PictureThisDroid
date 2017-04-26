@@ -15,7 +15,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 val RETROFIT_INSTANCE: Retrofit = Retrofit.Builder()
-		.baseUrl("http://10.0.2.2:8080")
+		.baseUrl("http://192.168.1.6:8080")
 		.client(OkHttpClient.Builder()
 				.addNetworkInterceptor(StethoInterceptor())
 				.build())
