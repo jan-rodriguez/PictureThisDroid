@@ -1,6 +1,7 @@
 package com.jankrodriguez.picturethis.activity
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.util.Log
@@ -10,8 +11,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.jankrodriguez.picturethis.R
 import com.jankrodriguez.picturethis.model.CreateUserBody
-import com.jankrodriguez.picturethis.model.User
 import com.jankrodriguez.picturethis.service.PICTURE_THIS_SERVICE_INSTANCE
+import com.jankrodriguez.picturethis.sharedprefs.getUserSharedPreferences
+import com.jankrodriguez.picturethis.sharedprefs.saveUser
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
@@ -23,10 +25,13 @@ private const val RC_SIGN_IN = 9001
 class LoginActivity : FragmentActivity() {
 
 	private var mGoogleApiClient: GoogleApiClient? = null
+	private var userSharedPrefs: SharedPreferences? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_login)
+
+		userSharedPrefs = getUserSharedPreferences()
 
 		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 				.requestProfile()
@@ -102,7 +107,13 @@ class LoginActivity : FragmentActivity() {
 						.subscribeOn(Schedulers.io())
 						.observeOn(AndroidSchedulers.mainThread())
 						.subscribe(
-								{ Log.d(TAG, it.toString()) },
+								{
+									userSharedPrefs?.saveUser(it)
+									// Go to view challenges
+									val intent = Intent(this, ViewChallengesActivity::class.java)
+									startActivity(intent)
+									finish()
+								},
 								{ Log.e(TAG, it.message) })
 			}
 		} else {
