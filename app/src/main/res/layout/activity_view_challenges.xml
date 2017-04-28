@@ -7,6 +7,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
+		android:theme="@style/AppTheme"
 		tools:context="com.jankrodriguez.picturethis.activity.ViewChallengesActivity">
 
 	<FrameLayout
@@ -26,6 +27,17 @@
 				android:text="@string/title_home"/>
 
 	</FrameLayout>
+
+	<android.support.design.widget.FloatingActionButton
+			android:id="@+id/createChallengeBtn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|end"
+			android:layout_margin="16dp"
+			android:backgroundTint="@color/colorAccent"
+			android:src="@drawable/ic_add_black_24dp"
+			android:tint="@android:color/white"
+			/>
 
 	<android.support.design.widget.BottomNavigationView
 			android:id="@+id/navigation"

@@ -12,6 +12,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.jankrodriguez.picturethis.R
 import com.jankrodriguez.picturethis.model.CreateUserBody
 import com.jankrodriguez.picturethis.service.PICTURE_THIS_SERVICE_INSTANCE
+import com.jankrodriguez.picturethis.sharedprefs.getUser
 import com.jankrodriguez.picturethis.sharedprefs.getUserSharedPreferences
 import com.jankrodriguez.picturethis.sharedprefs.saveUser
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -100,21 +101,25 @@ class LoginActivity : FragmentActivity() {
 			val googId = acct?.id
 
 			if (name != null && googId != null) {
-				PICTURE_THIS_SERVICE_INSTANCE.createUser(
-						CreateUserBody(
-								name = name,
-								google_id = googId))
-						.subscribeOn(Schedulers.io())
-						.observeOn(AndroidSchedulers.mainThread())
-						.subscribe(
-								{
-									userSharedPrefs?.saveUser(it)
-									// Go to view challenges
-									val intent = Intent(this, ViewChallengesActivity::class.java)
-									startActivity(intent)
-									finish()
-								},
-								{ Log.e(TAG, it.message) })
+				if (userSharedPrefs?.getUser() != null) {
+					// TODO: Should validate that this user still exists on the back-end
+					goToViewChallenges()
+				} else {
+					// Don't have user, either create or get
+					PICTURE_THIS_SERVICE_INSTANCE.createUser(
+							CreateUserBody(
+									name = name,
+									google_id = googId))
+							.subscribeOn(Schedulers.io())
+							.observeOn(AndroidSchedulers.mainThread())
+							.subscribe(
+									{
+										userSharedPrefs?.saveUser(it)
+										// Go to view challenges
+										goToViewChallenges()
+									},
+									{ Log.e(TAG, it.message) })
+				}
 			}
 		} else {
 			// Signed out, show unauthenticated UI.
@@ -123,4 +128,11 @@ class LoginActivity : FragmentActivity() {
 		}
 	}
 	// [END handleSignInResult]
+
+	private fun goToViewChallenges() {
+		// Go to view challenges
+		val intent = Intent(this, ViewChallengesActivity::class.java)
+		startActivity(intent)
+		finish()
+	}
 }

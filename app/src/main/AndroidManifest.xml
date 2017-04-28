@@ -22,6 +22,10 @@
 				android:name=".activity.ViewChallengesActivity"
 				android:label="@string/title_activity_view_challenges">
 		</activity>
+		<activity
+				android:name=".activity.CreateChallengeActivity"
+				android:launchMode="singleInstance">
+		</activity>
 	</application>
 
 </manifest>
