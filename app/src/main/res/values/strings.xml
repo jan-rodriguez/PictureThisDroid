@@ -8,4 +8,9 @@
 	<!-- Create challenge -->
 	<string name="title">Title</string>
 	<string name="create_challenge_title">Create Challenge</string>
+	<string name="take_picture">Take Picture</string>
+	<string name="is_public">Public</string>
+	<string name="location">Location</string>
+	<string name="select_friends">Select Friends</string>
+	<string name="create_challenge">Create Challenge</string>
 </resources>
