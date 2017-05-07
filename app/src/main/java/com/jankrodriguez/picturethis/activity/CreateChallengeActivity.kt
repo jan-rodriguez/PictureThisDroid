@@ -12,7 +12,16 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import com.jankrodriguez.picturethis.R
+import com.jankrodriguez.picturethis.model.CreateChallengeBody
+import com.jankrodriguez.picturethis.service.PICTURE_THIS_SERVICE_INSTANCE
+import com.jankrodriguez.picturethis.sharedprefs.getUser
+import com.jankrodriguez.picturethis.sharedprefs.getUserSharedPreferences
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_create_challenge.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -20,6 +29,7 @@ import java.util.*
 
 
 private const val REQUEST_IMAGE_CAPTURE = 1
+private val TAG = CreateChallengeActivity::class.java.simpleName
 
 class CreateChallengeActivity : AppCompatActivity() {
 
@@ -40,9 +50,13 @@ class CreateChallengeActivity : AppCompatActivity() {
       createFriendsList.visibility = visibility
       createSelectFriends.visibility = visibility
     }
+
+    createChallengeBtn.setOnClickListener {
+      uploadImageAndCreateChallenge()
+    }
   }
 
-  fun takePicture() {
+  private fun takePicture() {
     val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
     if (takePictureIntent.resolveActivity(packageManager) != null) {
       // Create the File where the photo should go
@@ -107,5 +121,43 @@ class CreateChallengeActivity : AppCompatActivity() {
     // Save a file: path for use with ACTION_VIEW intents
     currentPhotoPath = image.absolutePath
     return image
+  }
+
+  private fun uploadImageAndCreateChallenge() {
+    if (validateAllInput() && currentPhotoPath != null) {
+      val user = getUserSharedPreferences().getUser()
+      val file = File(currentPhotoPath)
+//      MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), RequestBody.create(MediaType.parse("image/*"), file))
+      val fileRequestBody = MultipartBody.Part.createFormData("upload", file.name, RequestBody.create(MediaType.parse("image/*"), file))
+      val title = createTitle.text.toString()
+      PICTURE_THIS_SERVICE_INSTANCE.uploadImage(fileRequestBody)
+          .flatMap {
+            val createChallengeBody = CreateChallengeBody(
+                user!!.google_id,
+                title,
+                0f,
+                0f,
+                it.filename,
+                createPublicSwitch.isChecked)
+            PICTURE_THIS_SERVICE_INSTANCE.createChallenge(createChallengeBody)
+          }
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(
+              {
+                Log.d(TAG, it.toString())
+              },
+              {
+                Log.e(TAG, it.message, it)
+              })
+    }
+  }
+
+  private fun validateAllInput(): Boolean {
+    if (createTitle.text.isEmpty()) {
+      return false
+    }
+
+    return true
   }
 }

@@ -29,7 +29,7 @@
 	</FrameLayout>
 
 	<android.support.design.widget.FloatingActionButton
-			android:id="@+id/createChallengeBtn"
+			android:id="@+id/goToCreateChallengeBtn"
 			style="@style/Widget.Design.FloatingActionButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
